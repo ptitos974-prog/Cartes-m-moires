@@ -958,7 +958,7 @@
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'llama-3.1-sonar-large-128k-online',
+                        model: 'sonar-pro',
                         messages: [{
                             role: 'user',
                             content: `Génère exactement ${cardCount} cartes mémoire (flashcards) éducatives sur un sujet intéressant et varié (histoire, sciences, géographie, culture générale, etc.).
@@ -1102,7 +1102,7 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
                         'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'llama-3.1-sonar-large-128k-online',
+                        model: 'sonar-pro',
                         messages: [{
                             role: 'user',
                             content: prompt
