@@ -934,7 +934,7 @@
             
             btn.disabled = true;
             btn.innerHTML = '<span class="loading"></span> Génération...';
-            msg.textContent = '🤖 L\'IA analyse votre image...';
+            msg.textContent = '🤖 L\'IA génère des cartes éducatives...';
             msg.classList.remove('hidden');
             msg.style.color = '#667eea';
 
@@ -961,7 +961,7 @@
                         model: 'llama-3.1-sonar-large-128k-online',
                         messages: [{
                             role: 'user',
-                            content: `En analysant cette image, génère exactement ${cardCount} cartes mémoire (flashcards) éducatives basées sur le contenu visible.
+                            content: `Génère exactement ${cardCount} cartes mémoire (flashcards) éducatives sur un sujet intéressant et varié (histoire, sciences, géographie, culture générale, etc.).
 
 ${difficultyPrompt}
 
@@ -1055,15 +1055,18 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
                 }
                 
                 let prompt = '';
-                if (currentDocumentData) {
-                    const excerpt = currentDocumentData.substring(0, 3000);
-                    prompt = `Analyse ce contenu de document "${currentDocumentName}" et génère exactement ${cardCount} cartes mémoire (flashcards) basées sur les informations clés :
+                if (currentDocumentData && currentDocumentData.trim().length > 50) {
+                    // Si on a extrait du contenu du document
+                    const excerpt = currentDocumentData.substring(0, 5000).trim();
+                    prompt = `Analyse ce contenu extrait du document "${currentDocumentName}" et génère exactement ${cardCount} cartes mémoire (flashcards) basées sur les informations clés présentes dans ce texte :
 
+--- DÉBUT DU CONTENU ---
 ${excerpt}
+--- FIN DU CONTENU ---
 
 ${difficultyPrompt}
 
-Pour chaque carte, crée une question pertinente (recto) et sa réponse (verso).
+Pour chaque carte, crée une question pertinente (recto) et sa réponse (verso) basée UNIQUEMENT sur le contenu ci-dessus.
 
 Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant ou après :
 {
@@ -1073,6 +1076,7 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
   ]
 }`;
                 } else {
+                    // Si on n'a pas pu extraire le contenu, on se base sur le nom du fichier
                     prompt = `J'ai un document nommé "${currentDocumentName}". Génère exactement ${cardCount} cartes mémoire (flashcards) éducatives basées sur le sujet suggéré par ce nom de fichier.
 
 ${difficultyPrompt}
@@ -1087,6 +1091,9 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
   ]
 }`;
                 }
+                
+                console.log('Envoi de la requête à Perplexity...');
+                console.log('Contenu du document:', currentDocumentData ? currentDocumentData.substring(0, 200) + '...' : 'Aucun contenu extrait');
                 
                 const response = await fetch('https://api.perplexity.ai/chat/completions', {
                     method: 'POST',
@@ -1103,13 +1110,22 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
                     })
                 });
 
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Erreur API:', errorData);
+                    throw new Error(`Erreur API: ${errorData.error?.message || response.statusText}`);
+                }
+
                 const data = await response.json();
+                console.log('Réponse de l\'API:', data);
                 
                 if (!data.choices || !data.choices[0]) {
                     throw new Error('Réponse invalide de l\'IA');
                 }
 
                 let text = data.choices[0].message.content;
+                console.log('Contenu brut:', text);
+                
                 text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
                 
                 const result = JSON.parse(text);
@@ -1138,8 +1154,8 @@ Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant o
                 }
 
             } catch (error) {
-                console.error('Erreur:', error);
-                msg.textContent = '❌ Erreur lors de la génération. Vérifiez votre clé API.';
+                console.error('Erreur complète:', error);
+                msg.textContent = `❌ Erreur: ${error.message}`;
                 msg.style.color = '#ef4444';
             } finally {
                 btn.disabled = false;
