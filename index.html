@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Cartes Mémoire IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .card-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .card-container:active {
+            transform: scale(0.98);
+        }
+
+        .card-content {
+            text-align: center;
+            font-size: 22px;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        .card-side {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn-again {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-hard {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-good {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-easy {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .menu {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .menu-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 15px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #667eea;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .deck-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .deck-item {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .deck-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .deck-count {
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .camera-section {
+            margin-bottom: 20px;
+        }
+
+        .camera-preview {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .processing-msg {
+            text-align: center;
+            color: #667eea;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px;
+            background: #e5e7eb;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-box {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+
+        .document-preview {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .document-icon {
+            font-size: 32px;
+        }
+
+        .document-details {
+            flex: 1;
+        }
+
+        .document-name {
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .document-size {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .api-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        .api-status.configured {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .api-status.not-configured {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Cartes Mémoire IA</h1>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="totalCards">0</div>
+                <div class="stat-label">Cartes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="toReview">0</div>
+                <div class="stat-label">À réviser</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="studied">0</div>
+                <div class="stat-label">Étudiées</div>
+            </div>
+        </div>
+
+        <div id="studyView">
+            <div class="card-container" id="cardContainer">
+                <div class="card-side" id="cardSide">RECTO</div>
+                <div class="card-content" id="cardContent">
+                    Prenez une photo ou importez un document pour générer des cartes automatiquement !
+                </div>
+            </div>
+
+            <div class="buttons hidden" id="answerButtons">
+                <button class="btn btn-again" onclick="rateCard(1)">
+                    Encore<br><small>&lt; 10m</small>
+                </button>
+                <button class="btn btn-hard" onclick="rateCard(2)">
+                    Difficile<br><small>&lt; 1j</small>
+                </button>
+                <button class="btn btn-good" onclick="rateCard(3)">
+                    Bien<br><small>&lt; 3j</small>
+                </button>
+                <button class="btn btn-easy" onclick="rateCard(4)">
+                    Facile<br><small>&lt; 7j</small>
+                </button>
+            </div>
+
+            <div class="difficulty-selector hidden" id="difficultySelector">
+                <div style="text-align: center; margin-bottom: 15px; color: white;">
+                    <strong>Niveau de difficulté des cartes</strong>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-good" onclick="setDifficulty('facile')" style="flex: 1;">
+                        😊 Facile
+                    </button>
+                    <button class="btn btn-hard" onclick="setDifficulty('moyen')" style="flex: 1;">
+                        🤔 Moyen
+                    </button>
+                    <button class="btn btn-again" onclick="setDifficulty('difficile')" style="flex: 1;">
+                        😰 Difficile
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu">
+            <button class="menu-btn" onclick="openAddModal()">📸 Créer</button>
+            <button class="menu-btn" onclick="openDecksModal()">📚 Paquets</button>
+            <button class="menu-btn" onclick="openApiKeyModal()">🔑 API</button>
+            <button class="menu-btn" onclick="resetProgress()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <!-- Modal Ajout de carte -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Créer des cartes</div>
+                <button class="close-btn" onclick="closeModal('addModal')">&times;</button>
+            </div>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('photo')">📸 Photo</button>
+                <button class="tab-btn" onclick="switchTab('document')">📄 Document</button>
+                <button class="tab-btn" onclick="switchTab('manual')">✏️ Manuel</button>
+            </div>
+
+            <!-- Onglet Photo -->
+            <div id="photoTab" class="tab-content active">
+                <div class="camera-section">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
+                        <label for="photoInput" class="file-input-label">
+                            📸 Prendre une photo
+                        </label>
+                    </div>
+                    
+                    <img id="photoPreview" class="camera-preview hidden" alt="Aperçu">
+                    <div id="processingMsg" class="processing-msg hidden"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre de cartes à générer</label>
+                    <input type="number" id="cardCount" value="5" min="1" max="20">
+                </div>
+
+                <div class="form-group">
+                    <label>Niveau de difficulté</label>
+                    <select id="difficultyPhoto" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px;">
+                        <option value="facile">😊 Facile - Questions simples</option>
+                        <option value="moyen" selected>🤔 Moyen - Questions standard</option>
+                        <option value="difficile">😰 Difficile - Questions complexes</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" id="generateBtn" onclick="generateCards()" disabled>
+                    Générer les cartes avec IA
+                </button>
+            </div>
+
+            <!-- Onglet Document -->
+            <div id="documentTab" class="tab-content">
+                <div class="camera-section">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="documentInput" accept=".pdf,.doc,.docx,.xls,.xlsx" onchange="handleDocument(event)">
+                        <label for="documentInput" class="file-input-label">
+                            📄 Importer un document
+                        </label>
+                    </div>
+                    
+                    <div id="documentPreview" class="document-preview hidden">
+                        <div class="document-info">
+                            <span class="document-icon" id="documentIcon">📄</span>
+                            <div class="document-details">
+                                <div class="document-name" id="documentName"></div>
+                                <div class="document-size" id="documentSize"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="processingMsgDoc" class="processing-msg hidden"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre de cartes à générer</label>
+                    <input type="number" id="cardCountDoc" value="5" min="1" max="20">
+                </div>
+
+                <div class="form-group">
+                    <label>Niveau de difficulté</label>
+                    <select id="difficultyDoc" style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 16px;">
+                        <option value="facile">😊 Facile - Questions simples</option>
+                        <option value="moyen" selected>🤔 Moyen - Questions standard</option>
+                        <option value="difficile">😰 Difficile - Questions complexes</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" id="generateBtnDoc" onclick="generateCardsFromDocument()" disabled>
+                    Générer les cartes avec IA
+                </button>
+
+                <div class="info-box">
+                    <strong>ℹ️ Note :</strong> Les PDF seront extraits et analysés. Pour Excel/Word, l'analyse sera basée sur le nom du fichier et son contenu texte.
+                </div>
+            </div>
+
+            <!-- Onglet Manuel -->
+            <div id="manualTab" class="tab-content">
+                <form onsubmit="addCard(event)">
+                    <div class="form-group">
+                        <label>Recto (question)</label>
+                        <textarea id="frontInput" placeholder="Ex: Quelle est la capitale de la France ?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Verso (réponse)</label>
+                        <textarea id="backInput" placeholder="Ex: Paris"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Ajouter la carte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configuration API -->
+    <div class="modal" id="apiKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔑 Configuration API</div>
+                <button class="close-btn" onclick="closeModal('apiKeyModal')">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Clé API Perplexity</label>
+                <input type="password" id="apiKeyInput" placeholder="pplx-...">
+                <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 5px;">
+                    Obtenez votre clé sur <a href="https://www.perplexity.ai/settings/api" target="_blank" style="color: #667eea;">perplexity.ai/settings/api</a>
+                </small>
+                <div id="apiStatus" class="api-status"></div>
+            </div>
+
+            <button class="btn-primary" onclick="saveApiKey()">
+                💾 Enregistrer
+            </button>
+
+            <div class="info-box">
+                <strong>🔒 Sécurité :</strong> Votre clé API est stockée localement dans votre navigateur et n'est jamais envoyée à un serveur tiers (sauf Perplexity pour générer les cartes).
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Paquets -->
+    <div class="modal" id="decksModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Mes paquets</div>
+                <button class="close-btn" onclick="closeModal('decksModal')">&times;</button>
+            </div>
+            <div id="decksList" class="deck-list"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    
+    <script>
+        let cards = [];
+        let currentCard = null;
+        let showingBack = false;
+        let studiedToday = 0;
+        let currentPhotoBase64 = null;
+        let currentDocumentData = null;
+        let currentDocumentName = null;
+        let currentDocumentType = null;
+
+        // Initialisation
+        function init() {
+            loadCards();
+            updateStats();
+            showNextCard();
+            updateApiKeyStatus();
+        }
+
+        // Gestion du stockage
+        function saveCards() {
+            const data = {
+                cards: cards,
+                studiedToday: studiedToday
+            };
+            try {
+                const stored = {};
+                for (let i = 0; i < cards.length; i++) {
+                    stored[`card_${i}`] = JSON.stringify(cards[i]);
+                }
+                stored['studiedToday'] = studiedToday;
+                stored['cardsCount'] = cards.length;
+                
+                Object.keys(stored).forEach(key => {
+                    localStorage.setItem(key, stored[key]);
+                });
+            } catch (e) {
+                console.error('Erreur sauvegarde:', e);
+            }
+        }
+
+        function loadCards() {
+            try {
+                const count = localStorage.getItem('cardsCount');
+                if (count) {
+                    cards = [];
+                    for (let i = 0; i < parseInt(count); i++) {
+                        const cardData = localStorage.getItem(`card_${i}`);
+                        if (cardData) {
+                            cards.push(JSON.parse(cardData));
+                        }
+                    }
+                    studiedToday = parseInt(localStorage.getItem('studiedToday')) || 0;
+                }
+            } catch (e) {
+                console.error('Erreur chargement:', e);
+            }
+        }
+
+        // Affichage des statistiques
+        function updateStats() {
+            document.getElementById('totalCards').textContent = cards.length;
+            const due = cards.filter(c => c.nextReview <= Date.now()).length;
+            document.getElementById('toReview').textContent = due;
+            document.getElementById('studied').textContent = studiedToday;
+        }
+
+        // Afficher la prochaine carte
+        function showNextCard() {
+            showingBack = false;
+            const dueCards = cards.filter(c => c.nextReview <= Date.now());
+            
+            if (dueCards.length === 0) {
+                document.getElementById('cardSide').textContent = '🎉';
+                document.getElementById('cardContent').textContent = 'Félicitations ! Toutes les cartes sont révisées.';
+                document.getElementById('answerButtons').classList.add('hidden');
+                return;
+            }
+
+            currentCard = dueCards[Math.floor(Math.random() * dueCards.length)];
+            document.getElementById('cardSide').textContent = 'RECTO';
+            document.getElementById('cardContent').textContent = currentCard.front;
+            document.getElementById('answerButtons').classList.add('hidden');
+        }
+
+        // Retourner la carte
+        document.getElementById('cardContainer').addEventListener('click', () => {
+            if (!currentCard) return;
+            
+            if (!showingBack) {
+                showingBack = true;
+                document.getElementById('cardSide').textContent = 'VERSO';
+                document.getElementById('cardContent').textContent = currentCard.back;
+                document.getElementById('answerButtons').classList.remove('hidden');
+            }
+        });
+
+        // Évaluer la carte
+        function rateCard(rating) {
+            if (!currentCard) return;
+
+            let interval = currentCard.interval || 0;
+            
+            switch(rating) {
+                case 1: interval = 0; break;
+                case 2: interval = Math.max(1, interval * 1.2); break;
+                case 3: interval = Math.max(1, interval === 0 ? 1 : interval * 2.5); break;
+                case 4: interval = Math.max(1, interval === 0 ? 4 : interval * 3); break;
+            }
+
+            currentCard.interval = interval;
+            currentCard.nextReview = Date.now() + (interval * 24 * 60 * 60 * 1000);
+            
+            studiedToday++;
+            saveCards();
+            updateStats();
+            showNextCard();
+        }
+
+        // Gestion de la clé API
+        function saveApiKey() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            if (apiKey) {
+                localStorage.setItem('perplexityApiKey', apiKey);
+                alert('✅ Clé API enregistrée avec succès !');
+                closeModal('apiKeyModal');
+                updateApiKeyStatus();
+            } else {
+                alert('❌ Veuillez entrer une clé API valide');
+            }
+        }
+
+        function getApiKey() {
+            return localStorage.getItem('perplexityApiKey');
+        }
+
+        function updateApiKeyStatus() {
+            const hasKey = !!getApiKey();
+            const statusEl = document.getElementById('apiStatus');
+            if (statusEl) {
+                if (hasKey) {
+                    statusEl.textContent = '✅ Clé API configurée';
+                    statusEl.className = 'api-status configured';
+                } else {
+                    statusEl.textContent = '❌ Clé API non configurée';
+                    statusEl.className = 'api-status not-configured';
+                }
+            }
+        }
+
+        function openApiKeyModal() {
+            const currentKey = getApiKey();
+            if (currentKey) {
+                document.getElementById('apiKeyInput').value = currentKey;
+            }
+            updateApiKeyStatus();
+            document.getElementById('apiKeyModal').classList.add('active');
+        }
+
+        // Gestion de la photo
+        function handlePhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentPhotoBase64 = e.target.result;
+                const preview = document.getElementById('photoPreview');
+                preview.src = currentPhotoBase64;
+                preview.classList.remove('hidden');
+                document.getElementById('generateBtn').disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Gestion du document
+        function handleDocument(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            currentDocumentName = file.name;
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            // Définir l'icône selon le type
+            const iconMap = {
+                'pdf': '📕',
+                'doc': '📘',
+                'docx': '📘',
+                'xls': '📗',
+                'xlsx': '📗'
+            };
+            document.getElementById('documentIcon').textContent = iconMap[extension] || '📄';
+
+            const reader = new FileReader();
+            
+            if (extension === 'pdf') {
+                reader.onload = async (e) => {
+                    try {
+                        const typedarray = new Uint8Array(e.target.result);
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        let text = '';
+                        
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const content = await page.getTextContent();
+                            text += content.items.map(item => item.str).join(' ') + '\n';
+                        }
+                        
+                        currentDocumentData = text;
+                        currentDocumentType = 'pdf';
+                        showDocumentPreview(file);
+                    } catch (error) {
+                        console.error('Erreur PDF:', error);
+                        alert('Erreur lors de la lecture du PDF');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else if (extension === 'xlsx' || extension === 'xls') {
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        let text = '';
+                        
+                        workbook.SheetNames.forEach(sheetName => {
+                            const worksheet = workbook.Sheets[sheetName];
+                            text += XLSX.utils.sheet_to_txt(worksheet) + '\n';
+                        });
+                        
+                        currentDocumentData = text;
+                        currentDocumentType = 'excel';
+                        showDocumentPreview(file);
+                    } catch (error) {
+                        console.error('Erreur Excel:', error);
+                        alert('Erreur lors de la lecture du fichier Excel');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else if (extension === 'docx') {
+                reader.onload = async (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+                        currentDocumentData = result.value;
+                        currentDocumentType = 'word';
+                        showDocumentPreview(file);
+                    } catch (error) {
+                        console.error('Erreur Word:', error);
+                        alert('Erreur lors de la lecture du fichier Word');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                currentDocumentData = null;
+                currentDocumentType = 'unknown';
+                showDocumentPreview(file);
+            }
+        }
+
+        function showDocumentPreview(file) {
+            const preview = document.getElementById('documentPreview');
+            document.getElementById('documentName').textContent = file.name;
+            document.getElementById('documentSize').textContent = (file.size / 1024).toFixed(2) + ' KB';
+            preview.classList.remove('hidden');
+            document.getElementById('generateBtnDoc').disabled = false;
+        }
+
+        // Générer des cartes avec l'IA (depuis photo)
+        async function generateCards() {
+            if (!currentPhotoBase64) return;
+
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                alert('❌ Veuillez configurer votre clé API Perplexity d\'abord (bouton 🔑 API)');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtn');
+            const msg = document.getElementById('processingMsg');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Génération...';
+            msg.textContent = '🤖 L\'IA analyse votre image...';
+            msg.classList.remove('hidden');
+            msg.style.color = '#667eea';
+
+            try {
+                const cardCount = document.getElementById('cardCount').value || 5;
+                const difficulty = document.getElementById('difficultyPhoto').value;
+                
+                let difficultyPrompt = '';
+                if (difficulty === 'facile') {
+                    difficultyPrompt = 'Génère des questions FACILES et SIMPLES, adaptées pour des débutants. Les questions doivent être directes et les réponses courtes.';
+                } else if (difficulty === 'moyen') {
+                    difficultyPrompt = 'Génère des questions de DIFFICULTÉ MOYENNE, adaptées pour un niveau intermédiaire. Les questions doivent être claires avec des réponses détaillées.';
+                } else {
+                    difficultyPrompt = 'Génère des questions DIFFICILES et COMPLEXES, adaptées pour des experts. Les questions doivent être approfondies et nécessiter une réflexion avancée.';
+                }
+                
+                const response = await fetch('https://api.perplexity.ai/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.1-sonar-large-128k-online',
+                        messages: [{
+                            role: 'user',
+                            content: `En analysant cette image, génère exactement ${cardCount} cartes mémoire (flashcards) éducatives basées sur le contenu visible.
+
+${difficultyPrompt}
+
+Pour chaque carte, crée une question pertinente (recto) et sa réponse (verso).
+
+Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant ou après :
+{
+  "cards": [
+    {"front": "Question 1", "back": "Réponse 1"},
+    {"front": "Question 2", "back": "Réponse 2"}
+  ]
+}`
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0]) {
+                    throw new Error('Réponse invalide de l\'IA');
+                }
+
+                let text = data.choices[0].message.content;
+                text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                
+                const result = JSON.parse(text);
+                
+                if (result.cards && Array.isArray(result.cards)) {
+                    result.cards.forEach(card => {
+                        cards.push({
+                            front: card.front,
+                            back: card.back,
+                            nextReview: Date.now(),
+                            interval: 0
+                        });
+                    });
+                    
+                    saveCards();
+                    updateStats();
+                    showNextCard();
+                    
+                    msg.textContent = `✅ ${result.cards.length} cartes créées avec succès !`;
+                    setTimeout(() => {
+                        closeModal('addModal');
+                        resetPhotoForm();
+                    }, 2000);
+                } else {
+                    throw new Error('Format de réponse invalide');
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                msg.textContent = '❌ Erreur lors de la génération. Vérifiez votre clé API.';
+                msg.style.color = '#ef4444';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Générer les cartes avec IA';
+            }
+        }
+
+        // Générer des cartes depuis un document
+        async function generateCardsFromDocument() {
+            if (!currentDocumentData && !currentDocumentName) return;
+
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                alert('❌ Veuillez configurer votre clé API Perplexity d\'abord (bouton 🔑 API)');
+                return;
+            }
+
+            const btn = document.getElementById('generateBtnDoc');
+            const msg = document.getElementById('processingMsgDoc');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Génération...';
+            msg.textContent = '🤖 L\'IA analyse votre document...';
+            msg.classList.remove('hidden');
+            msg.style.color = '#667eea';
+
+            try {
+                const cardCount = document.getElementById('cardCountDoc').value || 5;
+                const difficulty = document.getElementById('difficultyDoc').value;
+                
+                let difficultyPrompt = '';
+                if (difficulty === 'facile') {
+                    difficultyPrompt = 'Génère des questions FACILES et SIMPLES, adaptées pour des débutants. Les questions doivent être directes et les réponses courtes.';
+                } else if (difficulty === 'moyen') {
+                    difficultyPrompt = 'Génère des questions de DIFFICULTÉ MOYENNE, adaptées pour un niveau intermédiaire. Les questions doivent être claires avec des réponses détaillées.';
+                } else {
+                    difficultyPrompt = 'Génère des questions DIFFICILES et COMPLEXES, adaptées pour des experts. Les questions doivent être approfondies et nécessiter une réflexion avancée.';
+                }
+                
+                let prompt = '';
+                if (currentDocumentData) {
+                    const excerpt = currentDocumentData.substring(0, 3000);
+                    prompt = `Analyse ce contenu de document "${currentDocumentName}" et génère exactement ${cardCount} cartes mémoire (flashcards) basées sur les informations clés :
+
+${excerpt}
+
+${difficultyPrompt}
+
+Pour chaque carte, crée une question pertinente (recto) et sa réponse (verso).
+
+Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant ou après :
+{
+  "cards": [
+    {"front": "Question 1", "back": "Réponse 1"},
+    {"front": "Question 2", "back": "Réponse 2"}
+  ]
+}`;
+                } else {
+                    prompt = `J'ai un document nommé "${currentDocumentName}". Génère exactement ${cardCount} cartes mémoire (flashcards) éducatives basées sur le sujet suggéré par ce nom de fichier.
+
+${difficultyPrompt}
+
+Pour chaque carte, crée une question pertinente (recto) et sa réponse (verso).
+
+Réponds UNIQUEMENT avec un JSON valide dans ce format exact, sans texte avant ou après :
+{
+  "cards": [
+    {"front": "Question 1", "back": "Réponse 1"},
+    {"front": "Question 2", "back": "Réponse 2"}
+  ]
+}`;
+                }
+                
+                const response = await fetch('https://api.perplexity.ai/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'llama-3.1-sonar-large-128k-online',
+                        messages: [{
+                            role: 'user',
+                            content: prompt
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!data.choices || !data.choices[0]) {
+                    throw new Error('Réponse invalide de l\'IA');
+                }
+
+                let text = data.choices[0].message.content;
+                text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                
+                const result = JSON.parse(text);
+                
+                if (result.cards && Array.isArray(result.cards)) {
+                    result.cards.forEach(card => {
+                        cards.push({
+                            front: card.front,
+                            back: card.back,
+                            nextReview: Date.now(),
+                            interval: 0
+                        });
+                    });
+                    
+                    saveCards();
+                    updateStats();
+                    showNextCard();
+                    
+                    msg.textContent = `✅ ${result.cards.length} cartes créées avec succès !`;
+                    setTimeout(() => {
+                        closeModal('addModal');
+                        resetDocumentForm();
+                    }, 2000);
+                } else {
+                    throw new Error('Format de réponse invalide');
+                }
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                msg.textContent = '❌ Erreur lors de la génération. Vérifiez votre clé API.';
+                msg.style.color = '#ef4444';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Générer les cartes avec IA';
+            }
+        }
+
+        // Réinitialiser le formulaire photo
+        function resetPhotoForm() {
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoPreview').classList.add('hidden');
+            document.getElementById('processingMsg').classList.add('hidden');
+            document.getElementById('generateBtn').disabled = true;
+            currentPhotoBase64 = null;
+        }
+
+        // Réinitialiser le formulaire document
+        function resetDocumentForm() {
+            document.getElementById('documentInput').value = '';
+            document.getElementById('documentPreview').classList.add('hidden');
+            document.getElementById('processingMsgDoc').classList.add('hidden');
+            document.getElementById('generateBtnDoc').disabled = true;
+            currentDocumentData = null;
+            currentDocumentName = null;
+            currentDocumentType = null;
+        }
+
+        // Ajouter une carte manuellement
+        function addCard(event) {
+            event.preventDefault();
+            const front = document.getElementById('frontInput').value.trim();
+            const back = document.getElementById('backInput').value.trim();
+            
+            if (front && back) {
+                cards.push({
+                    front: front,
+                    back: back,
+                    nextReview: Date.now(),
+                    interval: 0
+                });
+                saveCards();
+                updateStats();
+                document.getElementById('frontInput').value = '';
+                document.getElementById('backInput').value = '';
+                closeModal('addModal');
+                showNextCard();
+            }
+        }
+
+        // Gestion des onglets
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if (tabName === 'photo') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('photoTab').classList.add('active');
+            } else if (tabName === 'document') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('documentTab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('manualTab').classList.add('active');
+            }
+        }
+
+        // Gestion des modals
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function openDecksModal() {
+            const list = document.getElementById('decksList');
+            if (cards.length === 0) {
+                list.innerHTML = '<div class="empty-state">Aucune carte pour le moment</div>';
+            } else {
+                list.innerHTML = cards.map((card, i) => `
+                    <div class="deck-item">
+                        <div class="deck-name">${card.front.substring(0, 40)}...</div>
+                        <div class="deck-count">Intervalle: ${card.interval.toFixed(0)}j</div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('decksModal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            if (id === 'addModal') {
+                resetPhotoForm();
+                resetDocumentForm();
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Réinitialiser toutes les révisions ?')) {
+                cards.forEach(c => {
+                    c.interval = 0;
+                    c.nextReview = Date.now();
+                });
+                studiedToday = 0;
+                saveCards();
+                updateStats();
+                showNextCard();
+            }
+        }
+
+        // Démarrage
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        init();
+    </script>
+</body>
+</html>
